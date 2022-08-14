@@ -1,4 +1,5 @@
 import { getNumberProperty, getStringEnumProperty } from "./json_utils";
+import { dateDifference, fromMap } from "./utils";
 
 export enum MuscleGroup {
   Biceps,
@@ -7,7 +8,14 @@ export enum MuscleGroup {
 }
 
 export class ExerciseDefinition {
-  constructor(name: string, primaryMovers: MuscleGroup[], assistingMuscles: MuscleGroup[]) {}
+  constructor(
+    private _name: string,
+    private _primaryMovers: MuscleGroup[],
+    private _assistingMuscles: MuscleGroup[]) {}
+
+  get name() {
+    return this._name;
+  }
 }
 
 export type ExerciseDefinitionSet = ExerciseDefinition[];
@@ -18,7 +26,8 @@ export interface LogbookItem {
 }
 
 export class ExerciseSet implements LogbookItem {
-  constructor(private _exercise: ExerciseDefinition,
+  constructor(
+    private _exercise: ExerciseDefinition,
     private _weight: number,
     private _reps: number) {}
 
@@ -30,15 +39,15 @@ export class ExerciseSet implements LogbookItem {
 
   }
 
-  public get weight() {
+  get weight() {
     return this._weight;
   }
 
-  public get reps() {
+  get reps() {
     return this._reps;
   }
 
-  public get exercise() {
+  get exercise() {
     return this._exercise;
   }
 }
@@ -72,8 +81,8 @@ export class Rest implements LogbookItem {
     };
   }
 
-  public type: RestType;
-  public duration: number;
+  type: RestType;
+  duration: number;
 }
 
 export class LogbookEntry {
@@ -90,6 +99,107 @@ export class LogbookEntry {
   }
 }
 
+class RepRange {
+  constructor(
+    public min: number,
+    public max: number) {}
+}
+
+enum OverloadType {
+  Reps,
+  Weight
+}
+
+class WorkoutExercise {
+  constructor(
+    public definition: ExerciseDefinition,
+    public previousWeight: number,
+    public reps: number,
+    public sets: number,
+    public overloadType: OverloadType) {}
+}
+
+export class WorkoutPlan {
+  print() {
+    for (const exercise of this._exercises) {
+      const weight = exercise.previousWeight;
+      const reps = exercise.reps;
+      const sets = 3;
+      console.log(`${exercise.definition.name} (${weight}kg / ${reps} reps / ${sets} sets)`);
+    }
+  }
+
+  addExercise(exercise: ExerciseDefinition, weight: number, reps: number, sets: number,
+    overloadType: OverloadType) {
+
+    this._exercises.push(new WorkoutExercise(exercise, weight, reps, sets, overloadType));
+  }
+
+  private _exercises: WorkoutExercise[] = [];
+}
+
+class ExerciseStats {
+  constructor(public exercise: ExerciseDefinition) {}
+
+  lastPerformed: Date|null = null;
+  currentConsecutiveFailures: number = 0;
+  currentWeight: number = 0;
+  currentReps: number = 0;
+}
+
 export class Logbook {
-  addEntry(entry: LogbookEntry): void {}
+  constructor(json: object) {
+    this._extractEntries(json);
+    this._generateStats();
+  }
+
+  addEntry(entry: LogbookEntry) {}
+
+  generatePlan(availableExercises: ExerciseDefinitionSet): WorkoutPlan {
+    const plan = new WorkoutPlan;
+
+    // TODO: Get these numbers from somewhere
+    const NumRecoveryDays = 3;
+    const TargetVolume = 25;
+    const repRange = new RepRange(8, 12);
+    const numSets = 3;
+
+    let volume = 0;
+    for (const exercise of availableExercises) {
+      const stats = fromMap(this._statsByExercise, exercise);
+      const now = new Date();
+      const ready = stats.lastPerformed === null ||
+        dateDifference(now, stats.lastPerformed).calendarDays > NumRecoveryDays;
+
+      if (ready) {
+        if (stats.currentReps >= repRange.max) {
+          plan.addExercise(exercise, stats.currentWeight, repRange.min, numSets,
+            OverloadType.Weight);
+        }
+        else {
+          plan.addExercise(exercise, stats.currentWeight, stats.currentReps, numSets,
+            OverloadType.Reps);
+        }
+      }
+
+      volume += numSets;
+      if (volume >= TargetVolume) {
+        break;
+      }
+    }
+
+    return plan;
+  }
+
+  private _extractEntries(json: object) {
+    // TODO
+  }
+
+  private _generateStats() {
+
+  }
+
+  private _entries: LogbookEntry[] = [];
+  private _stats: ExerciseStats[] = [];
+  private _statsByExercise = new Map<ExerciseDefinition, ExerciseStats>();
 }

@@ -1,5 +1,4 @@
 import { Logbook, ExerciseDefinition, MuscleGroup, LogbookEntry, ExerciseSet, Rest } from "./logbook";
-import { generatePlan } from "./workout_plan";
 
 export function main(): void {
   const BenchPress = new ExerciseDefinition("Bench press",
@@ -23,7 +22,9 @@ export function main(): void {
     OverheadPress
   ];
 
-  const logbook = new Logbook;
+  const logbookJson = {};
+
+  const logbook = new Logbook(logbookJson);
   const entry = new LogbookEntry(new Date("2022/08/13"));
 
   entry.addItem(new ExerciseSet(OverheadPress, 32, 8));
@@ -40,7 +41,8 @@ export function main(): void {
 
   logbook.addEntry(entry);
 
-  const plan = generatePlan(logbook, home);
+  const plan = logbook.generatePlan(home);
+  plan.print();
 }
 
 main();
