@@ -6,22 +6,12 @@ export function fromMap<K, V>(map: Map<K, V>, key: K): V {
   return value;
 }
 
-export class DateDiff {
-  calendarYears = 0;
-  years = 0;
-  calendarMonths = 0;
-  months = 0;
-  calendarDays = 0;
-  days = 0;
-  hours = 0;
-  minutes = 0;
-  seconds = 0;
-}
+export function differenceInCalendarDays(a: Date, b: Date): number {
+  const aTime = a.getTime();
+  const aDay = aTime / (1000 * 60 * 60 * 24);
 
-export function dateDifference(a: Date, b: Date): DateDiff {
-  const diff = new DateDiff;
+  const bTime = b.getTime();
+  const bDay = bTime / (1000 * 60 * 60 * 24);
 
-  // TODO
-
-  return diff;
+  return Math.floor(bDay) - Math.floor(aDay);
 }

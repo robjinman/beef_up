@@ -22,10 +22,37 @@ export function main(): void {
     OverheadPress
   ];
 
-  const logbookJson = {};
+  const logbookJson = {
+    entries: [
+      {
+        date: "2022-08-12T19:52:02.036Z",
+        items: [
+          {
+            type: "ExerciseSet",
+            exercise: "BenchPress",
+            weight: 47,
+            reps: 12
+          },
+          {
+            type: "ExerciseSet",
+            exercise: "BenchPress",
+            weight: 47,
+            reps: 12
+          },
+          {
+            type: "ExerciseSet",
+            exercise: "BenchPress",
+            weight: 47,
+            reps: 11
+          }
+        ]
+      }
+    ]
+  };
 
   const logbook = new Logbook(logbookJson);
-  const entry = new LogbookEntry(new Date("2022/08/13"));
+
+  const entry = new LogbookEntry(new Date());
 
   entry.addItem(new ExerciseSet(OverheadPress, 32, 8));
   entry.addItem(new Rest(60));

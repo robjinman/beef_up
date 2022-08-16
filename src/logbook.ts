@@ -1,5 +1,5 @@
-import { getNumberProperty, getStringEnumProperty } from "./json_utils";
-import { dateDifference, fromMap } from "./utils";
+import { getArrayProperty, getNumberProperty, getProperty, getStringEnumProperty } from "./json_utils";
+import { differenceInCalendarDays, fromMap } from "./utils";
 
 export enum MuscleGroup {
   Biceps,
@@ -169,7 +169,7 @@ export class Logbook {
       const stats = fromMap(this._statsByExercise, exercise);
       const now = new Date();
       const ready = stats.lastPerformed === null ||
-        dateDifference(now, stats.lastPerformed).calendarDays > NumRecoveryDays;
+        differenceInCalendarDays(now, stats.lastPerformed) > NumRecoveryDays;
 
       if (ready) {
         if (stats.currentReps >= repRange.max) {
@@ -191,8 +191,8 @@ export class Logbook {
     return plan;
   }
 
-  private _extractEntries(json: object) {
-    // TODO
+  private _extractEntries(obj: object) {
+    const entries = getArrayProperty<object>(obj, "entries", "object");
   }
 
   private _generateStats() {

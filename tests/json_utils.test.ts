@@ -1,4 +1,4 @@
-import { getProperty, getStringEnumProperty, ParseError } from '../src/json_utils';
+import { getArrayProperty, getProperty, getStringEnumProperty, ParseError } from '../src/json_utils';
  
 describe('testing json utils', () => {
   describe('getProperty', () => {
@@ -17,8 +17,7 @@ describe('testing json utils', () => {
         two: 2
       };
   
-      expect(() => getProperty(json, "two", "string"))
-        .toThrow(new ParseError("Key is type number, expected string"));
+      expect(() => getProperty(json, "two", "string")).toThrow(ParseError);
     });
   });
 
@@ -44,8 +43,16 @@ describe('testing json utils', () => {
         two: "Bananaa"
       };
   
-      expect(() => getStringEnumProperty(json, "two", ExampleStringEnum))
-        .toThrow(new ParseError(`Unrecognised enum value: ${json.two}`));
+      expect(() => getStringEnumProperty(json, "two", ExampleStringEnum)).toThrow(ParseError);
+    });
+  });
+
+  describe("getArrayProperty<T>", () => {
+    test("Can retrieve an array of numbers", () => {
+      const json = {
+        arr: [100, 200, 300]
+      };
+      expect(getArrayProperty<object>(json, "arr", "number")).toBe(json.arr);
     });
   });
 });
