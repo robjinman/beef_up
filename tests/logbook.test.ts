@@ -21,33 +21,42 @@ const GymExerciseSet = [
   OverheadPress
 ];
 
-const workoutJson = {
+const logbookExample = {
+  _type: "Logbook",
   entries: [
     {
+      _type: "LogbookEntry",
       date: "2022-08-12T19:52:02.036Z",
-      items: [
-        {
-          type: "ExerciseSet",
-          exercise: "BenchPress",
-          weight: 47,
-          reps: 12
-        },
-        {
-          type: "ExerciseSet",
-          exercise: "BenchPress",
-          weight: 47,
-          reps: 12
-        },
-        {
-          type: "ExerciseSet",
-          exercise: "BenchPress",
-          weight: 47,
-          reps: 11
-        }
-      ]
+      items: [{
+        _type: "ExerciseSet",
+        exercise: "BenchPress",
+        weight: 47,
+        reps: 12
+      }, {
+        _type: "Rest",
+        type: "Timed",
+        duration: 60
+      }, {
+        _type: "ExerciseSet",
+        exercise: "BenchPress",
+        weight: 47,
+        reps: 12
+      }, {
+        _type: "Rest",
+        type: "Timed",
+        duration: 60
+      }, {
+        _type: "ExerciseSet",
+        exercise: "BenchPress",
+        weight: 47,
+        reps: 11
+      }, {
+        _type: "Rest",
+        type: "Untimed"
+      }]
     }
   ]
-}
+};
 
 describe('testing logbook', () => {
   describe('Rest class', () => {
@@ -70,10 +79,7 @@ describe('testing logbook', () => {
 
   describe("Logbook class", () => {
     test('Generates workout plan', () => {
-      const logbook = new Logbook(workoutJson);
-      const plan = logbook.generatePlan(GymExerciseSet);
 
-      plan.print();
     });;
   });
 });

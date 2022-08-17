@@ -1,5 +1,4 @@
 import { ExerciseSetObject, LogbookEntryObject, LogbookObject, RestObject } from "./app_schema";
-import {} from "./schema";
 import { differenceInCalendarDays, fromMap } from "./utils";
 
 export enum MuscleGroup {
@@ -71,8 +70,7 @@ export class Rest implements LogbookItem {
   }
 
   fromJson(obj: any): void {
-    this.type = RestType[getStringEnumProperty(obj, "type", RestType) as keyof typeof RestType];
-    this.duration = getNumberProperty(obj, "duration");
+
   }
 
   toJson(): any {
@@ -96,8 +94,8 @@ export class LogbookEntry {
       switch (itemDef.type) {
         case "ExerciseSet": {
           const def = <ExerciseSetObject>itemDef;
-          const item = new ExerciseSet(def.exercise, def.weight, def.reps);
-          this.addItem(item);
+          //const item = new ExerciseSet(def.exercise, def.weight, def.reps);
+          //this.addItem(item);
           break;
         }
         case "Rest": {
