@@ -1,4 +1,5 @@
-import { getArrayProperty, getNumberProperty, getProperty, getStringEnumProperty } from "./json_utils";
+import { ExerciseSetObject, LogbookEntryObject, LogbookObject, RestObject } from "./app_schema";
+import {} from "./schema";
 import { differenceInCalendarDays, fromMap } from "./utils";
 
 export enum MuscleGroup {
@@ -53,8 +54,8 @@ export class ExerciseSet implements LogbookItem {
 }
 
 export enum RestType {
-  Timed = "timed",
-  Untimed = "untimed"
+  Timed = "Timed",
+  Untimed = "Untimed"
 }
 
 export class Rest implements LogbookItem {
@@ -90,8 +91,23 @@ export class LogbookEntry {
 
   addItem(item: LogbookItem): void {}
 
-  fromJson(json: JSON): void {
-
+  fromJson(obj: LogbookEntryObject): void {
+    for (const itemDef of obj.items) {
+      switch (itemDef.type) {
+        case "ExerciseSet": {
+          const def = <ExerciseSetObject>itemDef;
+          const item = new ExerciseSet(def.exercise, def.weight, def.reps);
+          this.addItem(item);
+          break;
+        }
+        case "Rest": {
+          const def = <RestObject>itemDef;
+          const item = def.duration === undefined ? new Rest() : new Rest(def.duration);
+          this.addItem(item);
+          break;
+        }
+      }
+    }
   }
 
   toJson(): any {
@@ -148,12 +164,14 @@ class ExerciseStats {
 }
 
 export class Logbook {
-  constructor(json: object) {
-    this._extractEntries(json);
+  constructor(obj: LogbookObject) {
+    this._extractEntries(obj.entries);
     this._generateStats();
   }
 
-  addEntry(entry: LogbookEntry) {}
+  addEntry(entry: LogbookEntry) {
+    this._entries.push(entry);
+  }
 
   generatePlan(availableExercises: ExerciseDefinitionSet): WorkoutPlan {
     const plan = new WorkoutPlan;
@@ -191,12 +209,15 @@ export class Logbook {
     return plan;
   }
 
-  private _extractEntries(obj: object) {
-    const entries = getArrayProperty<object>(obj, "entries", "object");
+  private _extractEntries(obj: LogbookEntryObject[]) {
+    for (const entryDef of obj) {
+      const entry = new LogbookEntry(new Date(entryDef.date));
+      entry.fromJson(entryDef);
+    }
   }
 
   private _generateStats() {
-
+    
   }
 
   private _entries: LogbookEntry[] = [];
